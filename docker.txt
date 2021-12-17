@@ -1,0 +1,87 @@
+docker container run -d --name exdaemon-basic -p 8080:80 -v ${pwd}/html:/usr/share/nginx/html nginx
+docker container ls -> lista os containers
+docker image ls -> lsita as imagens
+docker container logs <Nome do container ou ID> -> lista os logs do container
+docker container exec <Nome do container ou ID> <Comandos a serem executados no container> -> executar comandos dentro do container.
+docker image rm
+docker container rm
+docker image inspect <redis:latest   Nome da imagem> -> Traz detalhes da imagem no format Json.
+docker image pull -> baixa a imagem.
+docker image tag <Imagem fonte> <Nome da imagem que o usuário quer colocar>
+docker logs  -> passa os logs da aplicação.
+
+##################################################################################################################################
+Buildando primeira imagem:
+Primeiramente, crie um arquivo chamado "Dockerfile" dentro de alguma pasta. Dentro do arquivo coloque:
+
+FROM nginx:latest
+RUN echo '<h1>Hellow world</h1>' > /usr/share/nginx/html/index.html
+
+Salve o arquivo.
+Dentro da pasta onde contém o arquivo Dockerfile, execute o comando:
+
+docker image build -t ex-simple-build .    
+E está criada a imagem.
+
+Para roda-lá, digite o comando: docker container run -p <porta> <Nome da iamgem criada>
+##################################################################################################################################
+Dockerfile:
+
+FROM debian
+LABEL maintainer 'Aluno cod3r <aluno at cod3r.com.br>'
+
+ARG S3_BUCKET=files
+ENV S3_BUCKET=${S3_BUCKET}
+____________________________________________________________
+docker container run ex-build-arg -c 'echo $S3_BUCKET' -> Por padrão o nome é S3_BUCKET.
+Output: S3_BUCKET.
+
+Para alterar o nome: 
+docker image build --build-arg S3_BUCKET=myapp -t ex-build-arg . 
+Output: myapp.
+
+########################################################################################################
+docker network ls -> lista as opções de rede
+docker network create --driver bridge rede_nova -> cria uma nova rede.
+docker container run -d --name container3 --net rede_nova <alpine sleep 1000> -> conecta um container a nova rede.
+docker container exec -it <Nome ou ID do container> ifconfig -> traz dados das conexões de rede do container.
+docker network connect <Nome da rede> <Nome do container> -> conecta o container há uma rede especifica.
+docker network disconnect <Nome da rede> <Nome do container> desconecta o container há uma rede especifica.
+docker run -d -p 8080:3000 --net <minha-rede> <douglasq/alura-books>   -> Conectando há uma rede existente(minha-rede).
+docker network inspect minha-rede   -> inspeciona a rede especificada
+docker container exec -it <Nome do Container> ping <IP ou endereço, ex: www.google.com, ou 172.17.0.3>
+
+docker run -d -P <nome da aplicação(ex) = dockersamples/static-site> -> Loca a aplicação em uma porta aleatória.
+docker run -d -p <Definindo a porta>:80 <dockersamples/static-site>   -> alocando a aplicação apra uma determinada porta.
+docker run -d -p <Definindo a porta>:80 -e AUTHOR="Kaio" dockersamples/static-site   -> seta a variável de ambiente "-e".
+docker stop -t 0 $(docker ps -q)  -> deleta todos os containers ativos pelo id.
+docker run -it -v "<C:\Users\Usuario\Documents>:</var/www>"--name kaio ubuntu  -> Cria um volume no container e copia no desktop
+
+
+docker run -d -p 8080:3000 -v "C:\Users\Usuario\Documents\Caelum\volume-exemplo:/var/www" -w "/var/www" node npm start
+#########################################################################################################
+Instruções básicas de um arquivo Dockerfile.
+
+FROM node:latest  
+#Autor
+LABEL Kaio Candido Santiago 
+
+# Copia toda a pasta "." para o diretório /var/www
+COPY . /var/www
+
+# O comando RUN executa uma linha de código dentro da pasta apontado pelo WORKIR
+WORKDIR /var/www
+RUN npm install
+
+# Após criar o container é executado o comando npm start
+ENTRYPOINT npm start
+
+# Porta 3000
+EXPOSE 3000
+
+docker build -f <Dockerfile> -t <kaiocs/node> <.>  -> Builda a imagem criada a aprtir do arquivo Dockerfile.
+tag -f -> nome do arquivo docker
+tag -t -> Nomeia a imagem
+. -> Diretório atual
+docker push <Nome do usuário Docker>/<nome da imagem criada> -> Sobre uma imagem para o DockerHub
+#########################################################################################################
